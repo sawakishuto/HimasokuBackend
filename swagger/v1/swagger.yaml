@@ -1,0 +1,327 @@
+openapi: 3.0.1
+info:
+  title: Himasoku Backend API V1
+  version: v1
+  description: Rails API application for group membership management with PostgreSQL
+  contact:
+    name: Himasoku Backend
+servers:
+  - url: http://localhost:3000
+    description: Development server
+paths:
+  /users:
+    get:
+      summary: Get all users
+      tags:
+        - Users
+      responses:
+        "200":
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      summary: Create a new user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+      responses:
+        "201":
+          description: user created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "422":
+          description: unprocessable entity
+
+  /users/{id}:
+    get:
+      summary: Get a specific user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User UID
+      responses:
+        "200":
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: user not found
+
+  /users/{user_id}/groups:
+    get:
+      summary: Get groups for a specific user
+      tags:
+        - User Groups
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User UID
+      responses:
+        "200":
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Group"
+
+  /groups/{group_id}/users:
+    get:
+      summary: Get users in a specific group
+      tags:
+        - User Groups
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Group ID
+      responses:
+        "200":
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /users_groups:
+    get:
+      summary: Get all user-group relationships
+      tags:
+        - User Groups
+      responses:
+        "200":
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserGroupRelation"
+    post:
+      summary: Create a new user-group relationship
+      tags:
+        - User Groups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserGroupCreate"
+      responses:
+        "201":
+          description: relationship created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGroup"
+        "422":
+          description: unprocessable entity
+
+  /devices:
+    post:
+      summary: Create a new device
+      tags:
+        - Devices
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceCreate"
+      responses:
+        "201":
+          description: device created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        "422":
+          description: unprocessable entity
+
+  /devices/{id}:
+    get:
+      summary: Get a specific device
+      tags:
+        - Devices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Device ID
+      responses:
+        "200":
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        "404":
+          description: device not found
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: User unique identifier
+        name:
+          type: string
+          description: User name
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - uid
+
+    UserCreate:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            uid:
+              type: string
+              description: User unique identifier
+            name:
+              type: string
+              description: User name
+          required:
+            - uid
+
+    Group:
+      type: object
+      properties:
+        group_id:
+          type: string
+          description: Group unique identifier
+        name:
+          type: string
+          description: Group name
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - group_id
+
+    UserGroup:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Unique identifier for the relationship
+        group_id:
+          type: string
+          description: Group ID
+        uid:
+          type: string
+          description: User ID
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    UserGroupCreate:
+      type: object
+      properties:
+        users_group:
+          type: object
+          properties:
+            uuid:
+              type: string
+              description: Unique identifier for the relationship
+            group_id:
+              type: string
+              description: Group ID
+            uid:
+              type: string
+              description: User ID
+          required:
+            - uuid
+            - group_id
+            - uid
+
+    UserGroupRelation:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: User ID
+        group_id:
+          type: string
+          description: Group ID
+        group_name:
+          type: string
+          description: Group name
+
+    Device:
+      type: object
+      properties:
+        device_id:
+          type: string
+          description: Device unique identifier
+        uid:
+          type: string
+          description: User ID who owns the device
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - device_id
+        - uid
+
+    DeviceCreate:
+      type: object
+      properties:
+        device:
+          type: object
+          properties:
+            device_id:
+              type: string
+              description: Device unique identifier
+            uid:
+              type: string
+              description: User ID who owns the device
+          required:
+            - device_id
+            - uid
