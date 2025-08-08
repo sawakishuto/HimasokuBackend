@@ -96,33 +96,23 @@ class NotificationService
       notification = Apnotic::Notification.new(device_token)
       
       # バンドルIDを環境変数から取得（必須）
-      notification.topic = ENV['APNS_BUNDLE_ID'] || 'com.example.app'
+      notification.topic = ENV['APNS_BUNDLE_ID'] || 'com.sawaki.HimaSoku'
       
-      # インタラクティブ通知のペイロード作成
-      payload = {
-        aps: {
-          alert: {
-            title: "HimaSoku情報",
-            body: "#{name}が暇を共有しています。"
-          },
-          badge: 1,
-          sound: 'default',
-          category: 'HIMASOKU_INVITE', # インタラクティブ通知のカテゴリ
-          'mutable-content': 1 # 通知の内容を変更可能にする
-        }
+      # 基本的な通知設定
+      notification.alert = {
+        title: "HimaSoku情報",
+        body: "#{name}が暇を共有しています。\n #{data[:durationTime]}"
       }
+      notification.badge = 1
+      notification.sound = 'default'
+      notification.category = 'HIMASOKU_INVITE'
+      notification.mutable_content = true
       
-      # カスタムデータがあれば追加
-      payload.merge!(data) if data.any?
-      
-      notification.alert = payload[:aps][:alert]
-      notification.badge = payload[:aps][:badge]
-      notification.sound = payload[:aps][:sound]
-      notification.category = payload[:aps][:category]
-      notification.mutable_content = payload[:aps][:'mutable-content']
-      
-      # カスタムデータを追加
-      data.each { |key, value| notification.custom_payload[key] = value }
+      # カスタムデータを追加（Apnoticの正しい方法）
+      data.each do |key, value|
+        notification.custom_payload = notification.custom_payload || {}
+        notification.custom_payload[key] = value
+      end
       
       notification
     end
@@ -131,29 +121,21 @@ class NotificationService
       notification = Apnotic::Notification.new(device_token)
       
       # バンドルIDを環境変数から取得（必須）
-      notification.topic = ENV['APNS_BUNDLE_ID'] || 'com.example.app'
+      notification.topic = ENV['APNS_BUNDLE_ID'] || 'com.sawaki.HimaSoku'
       
-      # シンプルな通知のペイロード作成（インタラクティブではない）
-      payload = {
-        aps: {
-          alert: {
-            title: title,
-            body: body
-          },
-          badge: 1,
-          sound: 'default'
-        }
+      # 基本的な通知設定
+      notification.alert = {
+        title: title,
+        body: body
       }
+      notification.badge = 1
+      notification.sound = 'default'
       
-      # カスタムデータがあれば追加
-      payload.merge!(data) if data.any?
-      
-      notification.alert = payload[:aps][:alert]
-      notification.badge = payload[:aps][:badge]
-      notification.sound = payload[:aps][:sound]
-      
-      # カスタムデータを追加
-      data.each { |key, value| notification.custom_payload[key] = value }
+      # カスタムデータを追加（Apnoticの正しい方法）
+      data.each do |key, value|
+        notification.custom_payload = notification.custom_payload || {}
+        notification.custom_payload[key] = value
+      end
       
       notification
     end
