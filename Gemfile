@@ -36,10 +36,13 @@ gem 'bootsnap', require: false
 gem 'rack-cors'
 
 # API Documentation with Swagger
-gem 'rswag'
 gem 'firebase_id_token', '3.0.0'
 gem 'httparty', '0.21.0'
 gem 'redis', '5.3.0'
+gem 'rswag'
+
+# APNS (Apple Push Notification Service)
+gem 'apnotic', '~> 1.7'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

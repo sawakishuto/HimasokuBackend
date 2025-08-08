@@ -80,6 +80,9 @@ GEM
       tzinfo (~> 2.0)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
+    apnotic (1.7.2)
+      connection_pool (~> 2)
+      net-http2 (>= 0.18.3, < 2)
     base64 (0.3.0)
     benchmark (0.4.1)
     bigdecimal (3.2.2)
@@ -105,6 +108,7 @@ GEM
       redis-namespace (~> 1.10)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    http-2 (1.1.1)
     httparty (0.21.0)
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
@@ -137,6 +141,8 @@ GEM
     multi_xml (0.7.2)
       bigdecimal (~> 3.1)
     mutex_m (0.3.0)
+    net-http2 (0.19.0)
+      http-2 (>= 1.0)
     net-imap (0.5.9)
       date
       net-protocol
@@ -269,6 +275,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  apnotic (~> 1.7)
   bootsnap
   debug
   firebase_id_token (= 3.0.0)
