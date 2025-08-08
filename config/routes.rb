@@ -11,7 +11,7 @@ Rails.application.routes.draw do
 
   resources :users, only: [:index, :show, :create]
   resources :devices, only: [:show, :create]
-  
+  resources :groups, only: [:index, :show, :create]
   # グループとユーザーの関係
   resources :users_groups, only: [:index, :show, :create]
   
