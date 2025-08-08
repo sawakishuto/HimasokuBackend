@@ -108,7 +108,8 @@ GEM
       redis-namespace (~> 1.10)
     globalid (1.2.1)
       activesupport (>= 6.1)
-    http-2 (1.1.1)
+    http-2 (0.12.0)
+      base64
     httparty (0.21.0)
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
@@ -141,8 +142,8 @@ GEM
     multi_xml (0.7.2)
       bigdecimal (~> 3.1)
     mutex_m (0.3.0)
-    net-http2 (0.19.0)
-      http-2 (>= 1.0)
+    net-http2 (0.18.5)
+      http-2 (~> 0.11)
     net-imap (0.5.9)
       date
       net-protocol
@@ -279,9 +280,9 @@ DEPENDENCIES
   bootsnap
   debug
   firebase_id_token (= 3.0.0)
-  http-2
+  http-2 (= 0.12.0)
   httparty (= 0.21.0)
-  net-http2
+  net-http2 (= 0.18.5)
   pg (~> 1.1)
   puma (>= 5.0)
   rack-cors
