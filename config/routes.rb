@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   resources :users, only: [:index, :show, :create]
   resources :devices, only: [:show, :create]
   resources :groups, only: [:index, :show, :create]
+  
   # グループとユーザーの関係
   resources :users_groups, only: [:index, :show, :create]
   
@@ -20,6 +21,14 @@ Rails.application.routes.draw do
   
   # 特定のユーザーが所属するグループ一覧を取得
   get 'users/:user_id/groups', to: 'users_groups#user_groups', as: 'user_groups'
+  
+  # APNS通知
+  post 'notifications/group/:group_id', to: 'notifications#notification_for_group', as: 'notification_for_group'
+  post 'notifications/user/:firebase_uid', to: 'notifications#notification_for_user', as: 'notification_for_user'
+  post 'notifications/custom', to: 'notifications#send_custom_notification', as: 'send_custom_notification'
+  
+  # インタラクティブ通知のレスポンス処理
+  post 'notifications/response', to: 'notifications#handle_notification_response', as: 'handle_notification_response'
 
   # Defines the root path route ("/")
   # root "posts#index"
