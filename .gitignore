@@ -31,3 +31,89 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Apple Push Notification Service (APNS) Keys
+*.p8
+AuthKey_*.p8
+
+# Firebase Service Account Keys
+*-firebase-adminsdk-*.json
+firebase-service-account.json
+
+# Other sensitive files
+*.pem
+*.p12
+*.key
+*.crt
+*.cer
+
+# macOS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Coverage reports
+/coverage/
+
+# RSpec
+/spec/tmp
+
+# simplecov
+/coverage.data
+
+# reek
+.reek.yml
+
+# yard
+/.yardoc
+/doc/
+/rdoc/
+
+# Ignore Redis dump file
+dump.rdb
+
+# Ignore SQLite databases
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-*
+
+# Ignore local environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Docker
+.dockerignore
+
+# Backup files
+*.backup
+*.bak
+*.orig
