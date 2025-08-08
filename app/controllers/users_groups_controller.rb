@@ -53,12 +53,25 @@ class UsersGroupsController < ApplicationController
 
   def create
     Rails.logger.info "Creating GroupUser with params: #{users_group_params}"
-    @users_group = GroupUser.new(users_group_params)
-    if @users_group.save
-      render json: @users_group, status: :created
+
+    # 既存の関係をチェック
+    existing_relation = GroupUser.find_by(
+      firebase_uid: users_group_params[:firebase_uid], 
+      group_id: users_group_params[:group_id]
+    )
+
+    if existing_relation
+      # 既に存在する場合は200で返す
+      render json: existing_relation, status: :ok
     else
-      Rails.logger.error "GroupUser validation errors: #{@users_group.errors.full_messages}"
-      render json: { errors: @users_group.errors.full_messages }, status: :unprocessable_entity
+      # 新規作成
+      @users_group = GroupUser.new(users_group_params)
+      if @users_group.save
+        render json: @users_group, status: :created
+      else
+        Rails.logger.error "GroupUser validation errors: #{@users_group.errors.full_messages}"
+        render json: { errors: @users_group.errors.full_messages }, status: :unprocessable_entity
+      end
     end
   end
 

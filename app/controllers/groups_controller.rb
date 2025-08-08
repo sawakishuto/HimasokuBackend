@@ -10,7 +10,14 @@ class GroupsController < ApplicationController
   end
 
   def create
-    @group = Group.create(name: params[:name], group_id: params[:group_id])
-    render json: @group
+    @group = Group.find_or_create_by(group_id: params[:group_id]) do |group|
+      group.name = params[:name]
+    end
+    
+    if @group.persisted?
+      render json: @group, status: :created
+    else
+      render json: { errors: @group.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 end

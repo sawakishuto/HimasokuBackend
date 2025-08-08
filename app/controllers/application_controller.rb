@@ -16,14 +16,20 @@ class ApplicationController < ActionController::API
       # puts payload
       firebase_uid = payload["sub"]
       firebase_email = payload["email"]
+      firebase_name = payload["name"] || payload["display_name"] || firebase_email&.split('@')&.first
       @current_user = User.find_by(firebase_uid: firebase_uid)
       unless @current_user
-          # firebase_uidをuidとして使用してユーザーを作成
+          # firebase_uidを使用してユーザーを作成
           @current_user = User.create!(
-            uid: firebase_uid,
             firebase_uid: firebase_uid, 
-            email: firebase_email
+            email: firebase_email,
+            name: firebase_name
           )
+      else
+          # 既存ユーザーのnameが空の場合は更新
+          if @current_user.name.blank? && firebase_name.present?
+            @current_user.update!(name: firebase_name)
+          end
       end
     end
     rescue => e
