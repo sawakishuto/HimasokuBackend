@@ -10,18 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_07_191334) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_08_103716) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "group_users", primary_key: "uuid", id: :string, force: :cascade do |t|
     t.string "group_id", null: false
-    t.string "uid", null: false
+    t.string "firebase_uid", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["group_id", "uid"], name: "index_group_users_on_group_and_user", unique: true
+    t.index ["firebase_uid"], name: "index_group_users_on_firebase_uid"
+    t.index ["group_id", "firebase_uid"], name: "index_group_users_on_group_and_user", unique: true
     t.index ["group_id"], name: "index_group_users_on_group_id"
-    t.index ["uid"], name: "index_group_users_on_uid"
     t.index ["uuid"], name: "index_group_users_on_uuid", unique: true
   end
 
@@ -65,24 +65,26 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_07_191334) do
   end
 
   create_table "user_devices", primary_key: "device_id", id: :string, force: :cascade do |t|
-    t.string "uid", null: false
+    t.string "firebase_uid", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["device_id"], name: "index_user_devices_on_device_id", unique: true
-    t.index ["uid"], name: "index_user_devices_on_uid"
+    t.index ["firebase_uid"], name: "index_user_devices_on_firebase_uid"
   end
 
-  create_table "users", primary_key: "uid", id: :string, force: :cascade do |t|
+  create_table "users", primary_key: "firebase_uid", id: :string, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "name"
-    t.index ["uid"], name: "index_users_on_uid", unique: true
+    t.string "email"
+    t.index ["email"], name: "index_users_on_email"
+    t.index ["firebase_uid"], name: "index_users_on_firebase_uid", unique: true
   end
 
   add_foreign_key "group_users", "groups", primary_key: "group_id"
-  add_foreign_key "group_users", "users", column: "uid", primary_key: "uid"
+  add_foreign_key "group_users", "users", column: "firebase_uid", primary_key: "firebase_uid"
   add_foreign_key "simple_group_users", "simple_groups", column: "group_id", primary_key: "group_id"
   add_foreign_key "simple_group_users", "simple_users", column: "uid", primary_key: "uid"
   add_foreign_key "simple_user_devices", "simple_users", column: "uid", primary_key: "uid"
-  add_foreign_key "user_devices", "users", column: "uid", primary_key: "uid"
+  add_foreign_key "user_devices", "users", column: "firebase_uid", primary_key: "firebase_uid"
 end
