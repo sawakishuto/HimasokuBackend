@@ -42,6 +42,13 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: password
       RAILS_ENV: development
+      # APNS Configuration
+      APNS_AUTH_KEY_PATH: ./AuthKey_99MVNHAGC4.p8
+      APNS_KEY_ID: 99MVNHAGC4
+      APNS_TEAM_ID: 5285K4Z956
+      APNS_BUNDLE_ID: com.sawaki.HimaSoku
+      # TestFlight用: production, 開発用: sandbox (デフォルト)
+      APNS_ENVIRONMENT: production
     stdin_open: true
     tty: true
 

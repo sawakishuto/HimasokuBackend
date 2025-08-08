@@ -10,13 +10,19 @@ module APNS
     private
 
     def create_connection
-      # 本番環境かどうかで接続先を変更
-      if Rails.env.production?
-        # 本番環境: Production APNS
+      # APNS環境を環境変数で制御（TestFlight対応）
+      # APNS_ENVIRONMENT=production でProduction APNS使用
+      # APNS_ENVIRONMENT=sandbox でSandbox APNS使用（デフォルト）
+      use_production = ENV['APNS_ENVIRONMENT'] == 'production' || Rails.env.production?
+      
+      if use_production
+        # 本番環境/TestFlight: Production APNS
         gateway = 'api.push.apple.com'
+        Rails.logger.info "Using Production APNS: #{gateway}"
       else
         # 開発・テスト環境: Sandbox APNS
         gateway = 'api.sandbox.push.apple.com'
+        Rails.logger.info "Using Sandbox APNS: #{gateway}"
       end
 
       # APNSの認証情報を環境変数から取得
