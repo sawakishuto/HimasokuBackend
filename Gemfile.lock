@@ -279,7 +279,9 @@ DEPENDENCIES
   bootsnap
   debug
   firebase_id_token (= 3.0.0)
+  http-2
   httparty (= 0.21.0)
+  net-http2
   pg (~> 1.1)
   puma (>= 5.0)
   rack-cors
