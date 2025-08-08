@@ -186,6 +186,116 @@ paths:
         "404":
           description: device not found
 
+  /notifications/group/{group_id}:
+    post:
+      summary: Send interactive notification to group members
+      tags:
+        - Notifications
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Group ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupNotificationCreate"
+      responses:
+        "200":
+          description: notifications sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationResponse"
+        "404":
+          description: group not found
+        "422":
+          description: unprocessable entity
+        "500":
+          description: internal server error
+
+  /notifications/user/{firebase_uid}:
+    post:
+      summary: Send notification to specific user
+      tags:
+        - Notifications
+      parameters:
+        - name: firebase_uid
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User Firebase UID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserNotificationCreate"
+      responses:
+        "200":
+          description: notification sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationResponse"
+        "404":
+          description: user not found
+        "422":
+          description: unprocessable entity
+        "500":
+          description: internal server error
+
+  /notifications/custom:
+    post:
+      summary: Send custom notification to multiple device tokens
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomNotificationCreate"
+      responses:
+        "200":
+          description: notifications sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationResponse"
+        "422":
+          description: unprocessable entity
+
+  /notifications/response:
+    post:
+      summary: Handle interactive notification response
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotificationResponseCreate"
+      responses:
+        "200":
+          description: notification response processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationActionResponse"
+        "400":
+          description: bad request (unknown action identifier)
+        "404":
+          description: user not found
+        "500":
+          description: internal server error
+
 components:
   schemas:
     User:
@@ -331,3 +441,130 @@ components:
           required:
             - device_id
             - firebase_uid
+
+    # Notification Schemas
+    GroupNotificationCreate:
+      type: object
+      properties:
+        firebase_uid:
+          type: string
+          description: Firebase UID of the user sending the notification
+        name:
+          type: string
+          description: Name of the user sending the notification
+        durationTime:
+          type: integer
+          description: Duration time in minutes
+      required:
+        - firebase_uid
+        - name
+
+    UserNotificationCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Notification title
+        body:
+          type: string
+          description: Notification body
+        data:
+          type: object
+          description: Custom data for the notification
+
+    CustomNotificationCreate:
+      type: object
+      properties:
+        device_tokens:
+          type: array
+          items:
+            type: string
+          description: Array of device tokens to send notification to
+        title:
+          type: string
+          description: Notification title
+        body:
+          type: string
+          description: Notification body
+        data:
+          type: object
+          description: Custom data for the notification
+      required:
+        - device_tokens
+        - title
+        - body
+
+    NotificationResponseCreate:
+      type: object
+      properties:
+        firebase_uid:
+          type: string
+          description: Firebase UID of the user responding to the notification
+        action_identifier:
+          type: string
+          enum: [JOIN_ACTION, DECLINE_ACTION]
+          description: Action identifier from the interactive notification
+        group_id:
+          type: string
+          description: Group ID where the notification was sent
+        sender_name:
+          type: string
+          description: Name of the original sender
+        sender_firebase_uid:
+          type: string
+          description: Firebase UID of the original sender
+        duration_time:
+          type: integer
+          description: Duration time in minutes
+      required:
+        - firebase_uid
+        - action_identifier
+        - sender_firebase_uid
+
+    NotificationResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Response message
+        total_tokens:
+          type: integer
+          description: Total number of device tokens
+        successful:
+          type: integer
+          description: Number of successful notifications sent
+        failed:
+          type: integer
+          description: Number of failed notifications
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              token:
+                type: string
+                description: Device token
+              status:
+                type: string
+                enum: [success, failed, error]
+                description: Status of the notification for this token
+              error:
+                type: string
+                description: Error message if status is failed or error
+
+    NotificationActionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Response message
+        action:
+          type: string
+          enum: [joined, declined]
+          description: Action that was performed
+        user:
+          type: string
+          description: User identifier who performed the action
+        group_id:
+          type: string
+          description: Group ID where the action was performed
