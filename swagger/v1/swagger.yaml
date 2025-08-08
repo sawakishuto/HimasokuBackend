@@ -54,7 +54,7 @@ paths:
           required: true
           schema:
             type: string
-          description: User UID
+          description: User Firebase UID
       responses:
         "200":
           description: successful
@@ -76,7 +76,7 @@ paths:
           required: true
           schema:
             type: string
-          description: User UID
+          description: User Firebase UID
       responses:
         "200":
           description: successful
@@ -191,12 +191,15 @@ components:
     User:
       type: object
       properties:
-        uid:
+        firebase_uid:
           type: string
-          description: User unique identifier
+          description: Firebase UID (Primary Key)
         name:
           type: string
           description: User name
+        email:
+          type: string
+          description: User email address
         created_at:
           type: string
           format: date-time
@@ -204,7 +207,7 @@ components:
           type: string
           format: date-time
       required:
-        - uid
+        - firebase_uid
 
     UserCreate:
       type: object
@@ -212,14 +215,17 @@ components:
         user:
           type: object
           properties:
-            uid:
+            firebase_uid:
               type: string
-              description: User unique identifier
+              description: Firebase UID (Primary Key)
             name:
               type: string
               description: User name
+            email:
+              type: string
+              description: User email address
           required:
-            - uid
+            - firebase_uid
 
     Group:
       type: object
@@ -248,9 +254,9 @@ components:
         group_id:
           type: string
           description: Group ID
-        uid:
+        firebase_uid:
           type: string
-          description: User ID
+          description: User Firebase UID
         created_at:
           type: string
           format: date-time
@@ -270,20 +276,20 @@ components:
             group_id:
               type: string
               description: Group ID
-            uid:
+            firebase_uid:
               type: string
-              description: User ID
+              description: User Firebase UID
           required:
             - uuid
             - group_id
-            - uid
+            - firebase_uid
 
     UserGroupRelation:
       type: object
       properties:
         user_id:
           type: string
-          description: User ID
+          description: User Firebase UID
         group_id:
           type: string
           description: Group ID
@@ -297,9 +303,9 @@ components:
         device_id:
           type: string
           description: Device unique identifier
-        uid:
+        firebase_uid:
           type: string
-          description: User ID who owns the device
+          description: User Firebase UID who owns the device
         created_at:
           type: string
           format: date-time
@@ -308,7 +314,7 @@ components:
           format: date-time
       required:
         - device_id
-        - uid
+        - firebase_uid
 
     DeviceCreate:
       type: object
@@ -319,9 +325,9 @@ components:
             device_id:
               type: string
               description: Device unique identifier
-            uid:
+            firebase_uid:
               type: string
-              description: User ID who owns the device
+              description: User Firebase UID who owns the device
           required:
             - device_id
-            - uid
+            - firebase_uid
