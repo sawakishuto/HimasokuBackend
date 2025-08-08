@@ -10,6 +10,13 @@ class DevicesController < ApplicationController
 
   # POST /devices
   def create
+    # デバイスがすでに存在するか確認
+    existing_device = UserDevice.find_by(device_id: device_params[:device_id])
+    if existing_device
+      render json: existing_device, status: :ok
+      return
+    end
+
     @device = UserDevice.new(device_params)
     
     if @device.save
@@ -22,6 +29,6 @@ class DevicesController < ApplicationController
   private
 
   def device_params
-    params.require(:device).permit(:uid, :device_id)
+    params.require(:device).permit(:firebase_uid, :device_id)
   end
 end
