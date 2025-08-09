@@ -79,6 +79,9 @@ class NotificationService
       device_tokens.each do |token|
         begin
           notification = create_simple_notification(token, title, body, data)
+          notification.content_available = true
+          notification.badge = 1
+          notification.sound = 'default'
           response = connection.push(notification)
           
           if response.ok?

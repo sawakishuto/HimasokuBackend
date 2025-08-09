@@ -30,11 +30,18 @@ module APNS
       # 1. P8キーファイルを使用（推奨）
       # 2. P12証明書ファイルを使用
 
-      if ENV['APNS_AUTH_KEY_PATH'] && ENV['APNS_KEY_ID'] && ENV['APNS_TEAM_ID']
-        # P8キーファイルを使用
+
+      if ENV['APNS_AUTH_KEY_CONTENT'] && ENV['APNS_KEY_ID'] && ENV['APNS_TEAM_ID']
+        # P8キーファイルの内容を環境変数から直接使用（Cloud Run等での代替方法）
+        require 'tempfile'
+        
+        temp_file = Tempfile.new(['apns_key', '.p8'])
+        temp_file.write(ENV['APNS_AUTH_KEY_CONTENT'])
+        temp_file.close
+        
         Apnotic::Connection.new(
           auth_method: :token,
-          cert_path: ENV['APNS_AUTH_KEY_PATH'],
+          cert_path: temp_file.path,
           key_id: ENV['APNS_KEY_ID'],
           team_id: ENV['APNS_TEAM_ID'],
           url: "https://#{gateway}:443"
@@ -47,7 +54,10 @@ module APNS
           url: "https://#{gateway}:443"
         )
       else
-        Rails.logger.warn "APNS credentials not configured. Set APNS_AUTH_KEY_PATH, APNS_KEY_ID, APNS_TEAM_ID or APNS_CERT_PATH environment variables."
+        Rails.logger.warn "APNS credentials not configured. Set one of the following:"
+        Rails.logger.warn "  - APNS_AUTH_KEY_PATH, APNS_KEY_ID, APNS_TEAM_ID (file path method)"
+        Rails.logger.warn "  - APNS_AUTH_KEY_CONTENT, APNS_KEY_ID, APNS_TEAM_ID (content method)"
+        Rails.logger.warn "  - APNS_CERT_PATH (P12 certificate method)"
         nil
       end
     rescue => e
