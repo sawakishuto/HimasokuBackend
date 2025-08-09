@@ -133,12 +133,12 @@ class NotificationsController < ApplicationController
       user_id: participant_id,
       user_name: participant_name
     }
-    
+
     # シンプルな通知でメッセージを送信
     begin
       sender_user = User.find(sender_firebase_uid)
       device_tokens = sender_user.user_devices.pluck(:device_id)
-      
+
       if device_tokens.any?
         NotificationService.send_simple_notification(device_tokens, "HimaSoku速報", message, data)
       else
