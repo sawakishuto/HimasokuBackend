@@ -10,6 +10,17 @@ class NotificationService
       send_notifications(device_tokens, name, data)
     end
 
+    # グループ内の全ユーザーに通知を送信（送信者を除く）
+    def notify_group_except_sender(group_id, name, sender_firebase_uid, data = {})
+      group = Group.find(group_id)
+      # 送信者以外のユーザーのみに送信
+      users = group.users.where.not(firebase_uid: sender_firebase_uid)
+
+      device_tokens = users.flat_map { |user| user.user_devices.pluck(:device_id) }
+
+      send_notifications(device_tokens, name, data)
+    end
+
     # 特定のユーザーに通知を送信
     def notify_user(firebase_uid, name, data = {})
       user = User.find(firebase_uid)
@@ -22,13 +33,15 @@ class NotificationService
     def send_notifications(device_tokens, name, data = {})
       return { success: false, error: 'No device tokens provided' } if device_tokens.empty?
       
-      connection = APNS.connection
-      return { success: false, error: 'APNS connection not available' } unless connection
+      
+      
 
       results = []
       
       device_tokens.each do |token|
         begin
+          connection = APNS.connection
+          puts "connection: #{connection}"
           notification = create_notification(token, name, data)
           response = connection.push(notification)
           
