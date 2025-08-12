@@ -1,5 +1,5 @@
 class NotificationsController < ApplicationController
-    # グループ内の全ユーザーに通知を送信
+  # グループ内の全ユーザーに通知を送信
   def notification_for_group
     sender_firebase_uid = params[:firebase_uid]
     group_id = params[:group_id]
@@ -107,6 +107,15 @@ class NotificationsController < ApplicationController
           group_id: group_id
         }, status: :ok
 
+      when 'DECLINE_ACTION'
+        handle_decline_action(user, sender_name, sender_firebase_uid)
+        render json: {
+          message: '辞退しました',
+          action: 'declined',
+          user: user.name || user.firebase_uid,
+          group_id: group_id
+        }, status: :ok
+
       else
         render json: { error: 'Unknown action identifier' }, status: :bad_request
       end
@@ -121,7 +130,7 @@ class NotificationsController < ApplicationController
 
   private
 
-    def handle_join_action(user, sender_name, sender_firebase_uid)
+  def handle_join_action(user, sender_name, sender_firebase_uid)
     # 参加処理のロジック
     Rails.logger.info "User #{user.firebase_uid} joined the activity from #{sender_name}"
  
@@ -131,7 +140,8 @@ class NotificationsController < ApplicationController
     message = "#{participant_name}が共感しています！"
     data = {
       user_id: participant_id,
-      user_name: participant_name
+      user_name: participant_name,
+      action: 'JOIN'
     }
 
     # シンプルな通知でメッセージを送信
@@ -157,11 +167,32 @@ class NotificationsController < ApplicationController
   def handle_decline_action(user, sender_name, sender_firebase_uid)
     # 辞退処理のロジック
     Rails.logger.info "User #{user.firebase_uid} declined the activity from #{sender_name}"
-    
+ 
     # 送信元（暇を共有した人）に辞退通知を送信
-    notify_original_sender(sender_firebase_uid, user, '辞退', sender_name)
-    
-    # ここで実際のアプリのビジネスロジックを実装
+    participant_name = user.name || user.firebase_uid
+    participant_id = user.id
+    message = "#{participant_name}は今は忙しいみたいです😢"
+    data = {
+      user_id: participant_id,
+      user_name: participant_name,
+      action: 'DECLINE'
+    }
+
+    # シンプルな通知でメッセージを送信
+    begin
+      sender_user = User.find(sender_firebase_uid)
+      device_tokens = sender_user.user_devices.pluck(:device_id)
+
+      if device_tokens.any?
+        NotificationService.send_simple_notification(device_tokens, "HimaSoku速報", message, data)
+      else
+        Rails.logger.warn "No device tokens found for sender #{sender_firebase_uid}"
+      end
+    rescue ActiveRecord::RecordNotFound
+      Rails.logger.error "Sender user not found: #{sender_firebase_uid}"
+    rescue => e
+      Rails.logger.error "Error notifying sender: #{e.message}"
+    end
   end
 
   def notify_original_sender(sender_firebase_uid, responding_user, action, original_sender)
