@@ -4,7 +4,13 @@ class UsersGroupsController < ApplicationController
   def user_groups
     user = User.find(params[:user_id])
     @groups = user.groups
-    render json: @groups
+    render json: {
+      groups: [
+        @groups.map { |group| {
+        id: group.group_id,
+        name: group.name
+      } }]
+    }
   end
 
   # 特定のグループに所属するユーザー一覧を取得
