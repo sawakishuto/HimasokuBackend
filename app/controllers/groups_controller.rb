@@ -1,12 +1,22 @@
 class GroupsController < ApplicationController
   def index
     @groups = Group.all
-    render json: @groups
+    render json: {
+      groups: @groups.map { |group| {
+        id: group.group_id,
+        name: group.name
+      } }
+    }
   end
 
   def show 
     @group = Group.find(params[:id])
-    render json: @group
+    render json: {
+      group: {
+        id: @group.group_id,
+        name: @group.name
+      }
+    }
   end
 
   def create

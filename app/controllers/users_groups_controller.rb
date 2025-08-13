@@ -5,11 +5,11 @@ class UsersGroupsController < ApplicationController
     user = User.find(params[:user_id])
     @groups = user.groups
     render json: {
-      groups: [
+      groups: 
         @groups.map { |group| {
         id: group.group_id,
         name: group.name
-      } }]
+      } }
     }
   end
 
