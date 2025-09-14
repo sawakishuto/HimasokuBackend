@@ -7,10 +7,6 @@
 # Ignore bundler config.
 /.bundle
 
-# Ignore all environment files (except templates).
-/.env*
-!/.env*.erb
-
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
@@ -22,98 +18,165 @@
 !/tmp/pids/
 !/tmp/pids/.keep
 
-# Ignore storage (uploaded files in development and any SQLite databases).
+# Ignore uploaded files in development.
 /storage/*
 !/storage/.keep
 /tmp/storage/*
 !/tmp/storage/
 !/tmp/storage/.keep
 
+/public/assets
+.byebug_history
+
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-# Apple Push Notification Service (APNS) Keys
-*.p8
-AuthKey_*.p8
+# Ignore application configuration
+/config/database.yml
 
-# Firebase Service Account Keys
-*-firebase-adminsdk-*.json
-firebase-service-account.json
+# Environment variables
+.env*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
 
-# Other sensitive files
-*.pem
-*.p12
-*.key
-*.crt
-*.cer
+# Ignore Docker volumes and data
+/postgres-data/
+/redis-data/
 
-# macOS specific files
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Thumbnails
-._*
-
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-
-# Directories potentially created on remote AFP share
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-
-# IDE and Editor files
+# Ignore IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# Coverage reports
+# Ignore OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore Ruby/Rails specific files
+*.gem
+*.rbc
+/.config
 /coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
 
-# RSpec
-/spec/tmp
+# Used by dotenv library to load environment variables.
+# .env
 
-# simplecov
-/coverage.data
+# Ignore Byebug command history file.
+.byebug_history
 
-# reek
-.reek.yml
+# Ignore node_modules (if using any JS/Node tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# yard
-/.yardoc
-/doc/
-/rdoc/
+# Ignore yarn files
+.yarn-integrity
 
-# Ignore Redis dump file
-dump.rdb
+# Ignore precompiled assets
+/public/packs
+/public/packs-test
+/public/assets
 
-# Ignore SQLite databases
+# Ignore yarn files
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
+
+# Ignore Spring files.
+/spring/*.pid
+
+# Ignore RSpec configuration
+.rspec_status
+
+# Ignore SimpleCov coverage reports
+/coverage
+
+# Ignore Capistrano deployment files
+/config/deploy/*
+
+# Ignore database files
 *.sqlite3
 *.sqlite3-journal
 *.sqlite3-*
 
-# Ignore local environment files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Ignore Redis dump files
+dump.rdb
 
-# Docker
-.dockerignore
+# Ignore credentials
+/config/credentials.yml.enc
+/config/credentials/
 
-# Backup files
-*.backup
+# Ignore APNS certificates and keys
+*.p8
+*.p12
+*.pem
+*.crt
+*.key
+
+# Ignore Firebase service account keys
+*firebase*.json
+*serviceAccount*.json
+
+# Ignore Google Cloud credentials
+*gcp*.json
+*google*.json
+
+# Ignore backup files
 *.bak
-*.orig
+*.backup
+*.sql.gz
+
+# Ignore schema.sql (generated file)
+schema.sql
+
+# Ignore Docker Compose override files
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Ignore log files
+*.log
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore Swagger generated files
+/swagger/v*/swagger.json
+
+# Ignore documentation build files
+/doc/
+/rdoc/
+
+# Ignore bootsnap cache
+/tmp/cache/bootsnap*
+
+# Ignore storage uploads
+/storage/
+
+# Ignore Active Storage variants
+/tmp/storage/
+
+# Ignore public uploads
+/public/uploads/
+
+# Ignore Zeitwerk loader cache
+/tmp/cache/zeitwerk/
