@@ -140,7 +140,7 @@ jobs:
             --port=8080 \
             --quiet
 
-          # 公開アクセスを確実に設定
+          # 公開アクセスを確実に設
           gcloud run services add-iam-policy-binding ${{ env.SERVICE }} \
             --region=${{ env.REGION }} \
             --member="allUsers" \
