@@ -29,6 +29,9 @@ Rails.application.routes.draw do
   
   # インタラクティブ通知のレスポンス処理
   post 'notifications/response', to: 'notifications#handle_notification_response', as: 'handle_notification_response'
+  
+  # APNS test endpoint
+  get 'test/apns', to: 'application#test_apns', as: 'test_apns'
 
   # Defines the root path route ("/")
   # root "posts#index"

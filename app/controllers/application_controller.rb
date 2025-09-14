@@ -1,7 +1,31 @@
 class ApplicationController < ActionController::API
-  before_action :authenticate_firebase_user
+  before_action :authenticate_firebase_user, except: [:test_apns]
 
   attr_reader :current_user
+  
+  def test_apns
+    begin
+      # JWT生成テスト
+      jwt_token = APNS.generate_jwt_token
+      
+      render json: {
+        success: true,
+        message: "APNS JWT generation successful",
+        jwt_preview: jwt_token[0..50] + "...",
+        jwt_length: jwt_token.length,
+        team_id: ENV['APNS_TEAM_ID'],
+        key_id: ENV['APNS_KEY_ID'],
+        bundle_id: ENV['APNS_BUNDLE_ID']
+      }
+    rescue => e
+      render json: {
+        success: false,
+        error: e.message,
+        error_class: e.class.to_s,
+        backtrace: e.backtrace.first(3)
+      }, status: 500
+    end
+  end
 
   private
 

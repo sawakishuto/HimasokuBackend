@@ -14,7 +14,7 @@ module APNS
       create_connection
     end
     
-    # curlと同じ方式でJWTトークンを生成
+    # APNSに最適化されたJWTトークン生成
     def generate_jwt_token
       team_id = ENV.fetch('APNS_TEAM_ID')
       key_id = ENV.fetch('APNS_KEY_ID')
@@ -25,48 +25,50 @@ module APNS
       Rails.logger.info "Key ID: #{key_id}"
       
       begin
-        # P8キーを読み込む（正しい方法）
+        # P8キーを読み込む
         private_key = OpenSSL::PKey.read(p8_content)
-        Rails.logger.info "Private key loaded successfully"
+        Rails.logger.info "Private key loaded successfully (#{private_key.class})"
         
-        # JWT ペイロード
-        iat = Time.now.to_i
+        # 現在時刻（APNSは時刻に厳格）
+        now = Time.now.to_i
+        
+        # JWT ペイロード（APNSの仕様に厳密に準拠）
         jwt_payload = {
-          "iss": team_id,
-          "iat": iat
+          iss: team_id,
+          iat: now
         }
         
-        # JWT ヘッダー
+        # JWT ヘッダー（APNSの仕様に厳密に準拠）
         jwt_header = {
-          "alg": "ES256",
-          "kid": key_id
+          alg: "ES256",
+          kid: key_id
         }
         
-        Rails.logger.info "JWT Payload: #{jwt_payload.inspect}"
-        Rails.logger.info "JWT Header: #{jwt_header.inspect}"
-        Rails.logger.info "JWT will be valid from: #{Time.at(iat)} to #{Time.at(iat + 3600)}"
+        Rails.logger.info "JWT Payload: #{jwt_payload}"
+        Rails.logger.info "JWT Header: #{jwt_header}"
+        Rails.logger.info "Current time: #{Time.at(now)}"
         
-        # JWTトークンを生成
+        # JWTトークンを生成（ES256アルゴリズム）
         token = JWT.encode(jwt_payload, private_key, 'ES256', jwt_header)
         
         Rails.logger.info "Generated JWT Token: #{token[0..50]}..."
         Rails.logger.info "JWT Token length: #{token.length}"
         
-        # JWTトークンの構造を確認（デコードは不要）
-        parts = token.split('.')
-        if parts.length == 3
-          Rails.logger.info "JWT structure is valid (3 parts)"
-          header = Base64.decode64(parts[0])
-          payload = Base64.decode64(parts[1])
-          Rails.logger.info "JWT Header (decoded): #{header}"
-          Rails.logger.info "JWT Payload (decoded): #{payload}"
+        # トークンの検証
+        begin
+          decoded = JWT.decode(token, private_key.public_key, true, { algorithm: 'ES256' })
+          Rails.logger.info "JWT verification: SUCCESS"
+          Rails.logger.info "Decoded payload: #{decoded[0]}"
+          Rails.logger.info "Decoded header: #{decoded[1]}"
+        rescue JWT::DecodeError => decode_error
+          Rails.logger.error "JWT verification failed: #{decode_error.message}"
         end
         
         token
       rescue => e
         Rails.logger.error "JWT generation failed: #{e.message}"
         Rails.logger.error "Error class: #{e.class}"
-        Rails.logger.error "Backtrace: #{e.backtrace.first(3).join("\n")}"
+        Rails.logger.error "Backtrace: #{e.backtrace.first(5).join("\n")}"
         raise e
       end
     end
