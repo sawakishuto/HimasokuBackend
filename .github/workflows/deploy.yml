@@ -79,12 +79,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Google Cloud認証
+      # Google Cloud認証 (Workload Identity Federation)
       - name: Google Auth
         id: auth
-        uses: "google-github-actions/auth@v1"
+        uses: "google-github-actions/auth@v2"
         with:
-          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+          workload_identity_provider: "${{ secrets.WIF_PROVIDER }}"
+          service_account: "${{ secrets.WIF_SERVICE_ACCOUNT }}"
 
       # Docker認証設定
       - name: Docker Auth
