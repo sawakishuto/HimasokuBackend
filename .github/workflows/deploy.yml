@@ -132,7 +132,7 @@ jobs:
             --set-env-vars="RAILS_ENV=production" \
             --set-secrets="DB_USERNAME=POSTGRES_USER:latest,DB_PASSWORD=POSTGRES_PASSWORD:latest,DB_NAME=POSTGRES_DB:latest,DB_HOST=DB_HOST:latest" \
             --set-secrets="APNS_TEAM_ID=APNS_TEAM_ID:latest,APNS_KEY_ID=APNS_KEY_ID:latest,APNS_BUNDLE_ID=APNS_BUNDLE_ID:latest,APNS_ENVIRONMENT=APNS_ENVIRONMENT:latest" \
-            --set-secrets="APNS_P8_CONTENT=apns-key-file:latest,REDIS_URL=REDIS_URL:latest,RAILS_MAX_THREADS=RAILS_MAX_THREADS:latest" \
+            --set-secrets="APNS_P8_CONTENT=apns-key-file:latest,REDIS_URL=REDIS_URL:latest,RAILS_MAX_THREADS=RAILS_MAX_THREADS:latest, SECRET_KEY_BASE=SECRET_KEY_BASE:latest" \
             --memory=1Gi \
             --cpu=1 \
             --max-instances=10 \
