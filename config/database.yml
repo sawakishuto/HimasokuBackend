@@ -26,12 +26,12 @@ test:
 
 production:
   <<: *default
-  database: himasoku
-  # Cloud SQL接続設定（defaultの設定を上書き）
-  username: "postgres"
-  password: "Himasoku_0208"
+  database: <%= ENV.fetch("DB_NAME", "himasoku") %>
+  # Cloud SQL接続設定（環境変数で制御）
+  username: <%= ENV.fetch("POSTGRES_USER") %>
+  password: <%= ENV.fetch("POSTGRES_PASSWORD") %>
   # 接続先（環境変数で制御）
-  host: "/cloudsql/himasoku:asia-northeast1:himasoku-db"
+  host: <%= ENV.fetch("DB_HOST") %>
   # port: <%= ENV.fetch("DB_PORT", "5432").to_i unless ENV["DB_HOST"]&.start_with?("/cloudsql/") %>
 
   # 接続プール設定
