@@ -25,8 +25,8 @@ module APNS
       Rails.logger.info "Key ID: #{key_id}"
       
       begin
-        # P8キーを読み込む
-        private_key = OpenSSL::PKey::EC.new(p8_content)
+        # P8キーを読み込む（正しい方法）
+        private_key = OpenSSL::PKey.read(p8_content)
         Rails.logger.info "Private key loaded successfully"
         
         # JWT ペイロード
@@ -162,7 +162,7 @@ module APNS
         
         # P8キーの内容を検証
         begin
-          test_key = OpenSSL::PKey::EC.new(p8_content)
+          test_key = OpenSSL::PKey.read(p8_content)
           Rails.logger.info "P8 key validation: SUCCESS"
           Rails.logger.info "P8 key type: #{test_key.class}"
         rescue => key_error
