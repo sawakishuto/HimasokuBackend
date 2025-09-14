@@ -140,6 +140,13 @@ jobs:
             --port=8080 \
             --quiet
 
+          # 公開アクセスを確実に設定
+          gcloud run services add-iam-policy-binding ${{ env.SERVICE }} \
+            --region=${{ env.REGION }} \
+            --member="allUsers" \
+            --role="roles/run.invoker" \
+            --quiet
+
       # デプロイ結果の表示
       - name: Show Output
         run: |
