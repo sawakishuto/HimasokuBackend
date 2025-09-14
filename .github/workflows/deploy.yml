@@ -10,13 +10,11 @@ on:
       - "lib/**" # ライブラリコード
       - "public/**" # 静的ファイル
       - "Gemfile*" # Ruby依存関係
-      - "Dockerfile" # Dockerファイル
+      - "Dockerfile*" # Dockerファイル
       - ".dockerignore" # Docker除外設定
       - "bin/**" # 実行ファイル
       - "spec/**" # テストファイル
       - "test/**" # テストファイル
-    paths-ignore:
-      - "*.md" # ドキュメントファイルは除外
   pull_request:
     branches: ["main"]
     paths:
@@ -26,7 +24,7 @@ on:
       - "lib/**" # ライブラリコード
       - "public/**" # 静的ファイル
       - "Gemfile*" # Ruby依存関係
-      - "Dockerfile" # Dockerファイル
+      - "Dockerfile*" # Dockerファイル
       - ".dockerignore" # Docker除外設定
       - "bin/**" # 実行ファイル
       - "spec/**" # テストファイル
