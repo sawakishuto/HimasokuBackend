@@ -4,6 +4,7 @@ on:
   push:
     branches: ["main"]
     paths:
+      - ".github/workflows/**" # GitHub Actionsファイル
       - "app/**" # Railsアプリケーションコード
       - "config/**" # 設定ファイル
       - "db/**" # データベースマイグレーション
@@ -18,6 +19,7 @@ on:
   pull_request:
     branches: ["main"]
     paths:
+      - ".github/workflows/**" # GitHub Actionsファイル
       - "app/**" # Railsアプリケーションコード
       - "config/**" # 設定ファイル
       - "db/**" # データベースマイグレーション
