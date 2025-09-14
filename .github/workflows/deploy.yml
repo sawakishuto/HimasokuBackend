@@ -49,8 +49,15 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.2"
+          ruby-version: "3.3.7"
           bundler-cache: true
+
+      # Bundle状態の確認
+      - name: Check Bundle Status
+        run: |
+          echo "Ruby version: $(ruby -v)"
+          echo "Bundler version: $(bundle -v)"
+          bundle check || bundle install --verbose
 
       # テストの実行
       - name: Run Tests

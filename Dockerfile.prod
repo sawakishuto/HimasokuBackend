@@ -1,0 +1,57 @@
+# Cloud Run用本番環境Dockerfile
+FROM ruby:3.3.7-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+    build-essential \
+    libpq-dev \
+    libyaml-dev \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
+
+# Set production environment variables
+ENV RAILS_ENV=production
+ENV RAILS_SERVE_STATIC_FILES=true
+ENV RAILS_LOG_TO_STDOUT=true
+ENV BUNDLE_PATH=/usr/local/bundle
+ENV BUNDLE_WITHOUT=development:test
+ENV PORT=8080
+ENV SECRET_KEY_BASE= ENV.fetch("SECRET_KEY_BASE")
+
+# Copy Gemfile and Gemfile.lock
+COPY Gemfile Gemfile.lock ./
+
+# Install gems (production only)
+RUN bundle config set --local without 'development test' && \
+    bundle install && \
+    bundle clean --force
+
+# Copy application code
+COPY . .
+
+# Rails APIモードのため、アセットプリコンパイルはスキップ
+# RUN bundle exec rails assets:precompile
+
+# Create necessary directories and set permissions
+RUN mkdir -p tmp/pids log storage && \
+    chmod +x bin/rails bin/rake
+
+# Create non-root user for security
+RUN groupadd -r rails && useradd -r -g rails rails
+RUN chown -R rails:rails /app
+USER rails
+
+# Expose port (Cloud Run uses PORT environment variable)
+EXPOSE 8080
+
+# Health check (環境変数PORTを使用)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-8080}/up || exit 1
+
+# Start server (Cloud Runが設定するPORT環境変数を使用)
+CMD ["sh", "-c", "bundle exec rails server -b 0.0.0.0 -p ${PORT:-8080}"]
