@@ -28,8 +28,8 @@ production:
   <<: *default
   database: <%= ENV.fetch("DB_NAME", "himasoku") %>
   # Cloud SQL接続設定（環境変数で制御）
-  username: <%= ENV.fetch("POSTGRES_USER") %>
-  password: <%= ENV.fetch("POSTGRES_PASSWORD") %>
+  username: <%= ENV.fetch("DB_USERNAME") %>
+  password: <%= ENV.fetch("DB_PASSWORD") %>
   # 接続先（環境変数で制御）
   host: <%= ENV.fetch("DB_HOST") %>
   # port: <%= ENV.fetch("DB_PORT", "5432").to_i unless ENV["DB_HOST"]&.start_with?("/cloudsql/") %>
