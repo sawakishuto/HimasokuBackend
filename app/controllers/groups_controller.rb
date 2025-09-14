@@ -11,11 +11,11 @@ class GroupsController < ApplicationController
 
   def show 
     @group = Group.find(params[:id])
+    Rails.logger.info("Group: #{@group.inspect}")
+  
     render json: {
-      group: {
         id: @group.group_id,
         name: @group.name
-      }
     }
   end
 
