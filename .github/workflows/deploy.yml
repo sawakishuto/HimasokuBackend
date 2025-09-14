@@ -108,7 +108,7 @@ jobs:
             --region=${{ env.REGION }} \
             --vpc-connector=himasoku-vpc-connector \
             --set-env-vars="RAILS_ENV=production" \
-            --set-secrets="DB_USERNAME=POSTGRES_USER:latest,DB_PASSWORD=POSTGRES_PASSWORD:latest,DB_NAME=POSTGRES_DB:latest,DB_HOST=DB_HOST:latest,SECRET_KEY_BASE=SECRET_KEY_BASE:latest" \
+            --set-secrets="DB_USERNAME=POSTGRES_USER:latest,DB_PASSWORD=POSTGRES_PASSWORD:latest,DB_NAME=POSTGRES_DB:latest,DB_HOST=DB_HOST:latest" \
             --command="bundle,exec,rails,db:migrate" \
             --max-retries=1 \
             --parallelism=1 \
@@ -122,28 +122,24 @@ jobs:
 
       # Cloud Runにデプロイ
       - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v1
-        with:
-          service: ${{ env.SERVICE }}
-          region: ${{ env.REGION }}
-          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/web:${{ github.sha }}
-          env_vars: |
-            RAILS_ENV=production
-          secrets: |
-            DB_USERNAME=POSTGRES_USER:latest
-            DB_PASSWORD=POSTGRES_PASSWORD:latest
-            DB_NAME=POSTGRES_DB:latest
-            DB_HOST=DB_HOST:latest
-            APNS_TEAM_ID=APNS_TEAM_ID:latest
-            APNS_KEY_ID=APNS_KEY_ID:latest
-            APNS_BUNDLE_ID=APNS_BUNDLE_ID:latest
-            APNS_ENVIRONMENT=APNS_ENVIRONMENT:latest
-            APNS_P8_CONTENT=apns-key-file:latest
-            REDIS_URL=REDIS_URL:latest
-            RAILS_MAX_THREADS=RAILS_MAX_THREADS:latest
-            SECRET_KEY_BASE=SECRET_KEY_BASE:latest
+        run: |
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/web:${{ github.sha }} \
+            --region=${{ env.REGION }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --set-env-vars="RAILS_ENV=production" \
+            --set-secrets="DB_USERNAME=POSTGRES_USER:latest,DB_PASSWORD=POSTGRES_PASSWORD:latest,DB_NAME=POSTGRES_DB:latest,DB_HOST=DB_HOST:latest" \
+            --set-secrets="APNS_TEAM_ID=APNS_TEAM_ID:latest,APNS_KEY_ID=APNS_KEY_ID:latest,APNS_BUNDLE_ID=APNS_BUNDLE_ID:latest,APNS_ENVIRONMENT=APNS_ENVIRONMENT:latest" \
+            --set-secrets="APNS_P8_CONTENT=apns-key-file:latest,REDIS_URL=REDIS_URL:latest,RAILS_MAX_THREADS=RAILS_MAX_THREADS:latest" \
+            --memory=1Gi \
+            --cpu=1 \
+            --max-instances=10 \
+            --timeout=300 \
+            --quiet
 
       # デプロイ結果の表示
       - name: Show Output
-        run: echo ${{ steps.deploy.outputs.url }}
+        run: |
+          echo "Deployment completed successfully!"
+          gcloud run services describe ${{ env.SERVICE }} --region=${{ env.REGION }} --format="value(status.url)"
