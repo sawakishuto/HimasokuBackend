@@ -1,4 +1,5 @@
 # Himasoku Backend
+https://meet.google.com/cza-zxir-jco?authuser=1&pli=1
 
 Rails API application for group membership management with PostgreSQL.
 
