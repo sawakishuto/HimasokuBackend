@@ -14,15 +14,27 @@ iOS クライアント（`sawakishuto/HimaSoku`）・インフラ（`sawakishuto
 | ParamsWrapper 無効 | クライアントはフラット JSON を送るが `users`/`devices`/`users_groups` は `require(:モデル)` を要求。初期化子欠落で `400 ParameterMissing` になっていた | `config/initializers/wrap_parameters.rb` を追加 |
 | Redis 認証情報のハードコード | `config/initializers/redis.rb` にパスワード付き接続文字列が直書き（到達不能なデッドフォールバック） | 該当行を `ENV["REDIS_URL"]` のみに変更して削除 |
 | デバッグ出力 | `firebase_id_token.rb` の `puts` / コメントアウト済み `# puts` | logger 化・削除 |
+| APNS env 名の不一致 | バックエンドは `APNS_P8_CONTENT` を読むが、Terraform/Cloud Run は `APNS_AUTH_KEY_CONTENT` を設定。本番で `KeyError` → APNS が起動不能だった可能性 | `apns.rb#p8_content` を両方の env 名を許容するよう変更 |
 
 ---
 
 ## 要判断（未修正・認証クリティカルパスのため保留）
 
 ### 1. Redis 認証情報のローテーション【セキュリティ / 重要】
-`config/initializers/redis.rb` に直書きされていた Redis 接続文字列（パスワード付き）は
-**git 履歴に残っている**。コードから消しても履歴からは消えないため、当該 Redis の
-**認証情報をローテーション**することを推奨。
+Redis 接続文字列（パスワード付き）が **2 箇所に平文で存在**していた:
+- `config/initializers/redis.rb`（削除済み・到達不能なデッドコードだった）
+- `himasoku_terraform/main.tf` の Cloud Run `env { name = "REDIS_URL" ... }`（**現用の値**）
+
+どちらも git 履歴に残るため、当該 Redis の**認証情報をローテーション**し、Terraform 側は
+値直書きではなく Secret Manager 参照（`value_source.secret_key_ref`）に移すことを推奨。
+
+### 1.5 APNS の env 名不一致【本番影響 / 重要】
+Terraform は Cloud Run に `APNS_AUTH_KEY_CONTENT`（Secret `apns-key-file`）を渡すが、
+アプリは `APNS_P8_CONTENT` を読んでいた。本番では未設定 → `KeyError` で APNS が動かない。
+- コード側で両名を許容するよう修正済み（`apns.rb#p8_content`）。
+- 望ましくは infra とコードで env 名を統一する（どちらかに寄せる）。
+- 併せて Terraform に **`APNS_KEY_ID` / `APNS_TEAM_ID` / `APNS_BUNDLE_ID`** は渡っているが、
+  ゲートウェイ判定に使う `APNS_ENVIRONMENT=production` は設定済み（一致・良好）。
 
 ### 2. `firebase_id_token.rb#save_certs_to_redis` のフォールバックが壊れている
 ```ruby
@@ -57,7 +69,14 @@ end
 （前者は削除済み、後者は `redis://redis:6379/1`）。本番は `REDIS_URL` 必須の想定なので、
 どちらも「未設定なら明示エラー」に寄せると安全。
 
-### 4. iOS クライアント側の堅牢性（別リポジトリ・参考）
+### 4. Terraform / GCP のハードニング（別リポジトリ・参考）
+`himasoku_terraform/main.tf` で気づいた点:
+- Cloud SQL `backup_configuration { enabled = false }` … バックアップ無効。障害時に復旧不可。
+- Cloud SQL `require_ssl = false` … プライベート IP のみ（`ipv4_enabled = false`）なので露出は低いが、SSL 必須が望ましい。
+- `authorized_networks { value = "0.0.0.0/0" }` が定義されているが `ipv4_enabled = false` のため実効なし（設定の残骸）。
+- `RAILS_SECRET_KEY_BASE`（secret `rails_secret_key_base`）と `SECRET_KEY_BASE`（secret `SECRET_KEY_BASE`）が両方定義され重複・紛らわしい。どちらを使うか整理を。
+
+### 5. iOS クライアント側の堅牢性（別リポジトリ・参考）
 `AppDelegate.didReceive` で `senderFirebaseUID!` 等を強制アンラップしている。
 バックエンドがキーを 1 つでも欠くとクラッシュする。バックエンド側は
 [カスタムペイロードのキー契約](specification.md#カスタムペイロードのキー契約重要)を厳守すること。
