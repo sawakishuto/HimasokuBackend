@@ -8,7 +8,7 @@
 # 必須 ENV:
 #   APNS_TEAM_ID    Apple Developer の Team ID
 #   APNS_KEY_ID     P8 認証キーの Key ID
-#   APNS_P8_CONTENT P8 認証キーの内容（PEM 文字列）
+#   APNS_P8_CONTENT P8 認証キーの内容（PEM 文字列）※ APNS_AUTH_KEY_CONTENT でも可
 # 任意 ENV:
 #   APNS_BUNDLE_ID    トピック（既定: com.sawaki.HimaSoku）
 #   APNS_ENVIRONMENT  "production" | "sandbox"（既定: Rails.env が production なら production）
@@ -112,8 +112,13 @@ module APNS
       ENV.fetch('APNS_KEY_ID')
     end
 
+    # P8 認証キーの内容。インフラ（Cloud Run / Terraform）側の env 名が
+    # APNS_AUTH_KEY_CONTENT の場合があるため、両方の名前を許容する。
     def p8_content
-      ENV.fetch('APNS_P8_CONTENT').strip
+      content = ENV['APNS_P8_CONTENT'] || ENV['APNS_AUTH_KEY_CONTENT']
+      raise KeyError, 'APNS_P8_CONTENT (or APNS_AUTH_KEY_CONTENT) is not set' if content.to_s.strip.empty?
+
+      content.strip
     end
 
     def pool_size

@@ -353,7 +353,7 @@ APNS.push(device_token,
 |------|------|------|
 | `APNS_TEAM_ID` | ✅ | Apple Developer Team ID |
 | `APNS_KEY_ID` | ✅ | P8 認証キーの Key ID |
-| `APNS_P8_CONTENT` | ✅ | P8 認証キーの内容（PEM 文字列） |
+| `APNS_P8_CONTENT` | ✅ | P8 認証キーの内容（PEM 文字列）。`APNS_AUTH_KEY_CONTENT` でも可 |
 | `APNS_BUNDLE_ID` | | トピック（既定: `com.sawaki.HimaSoku`） |
 | `APNS_ENVIRONMENT` | | `production` / `sandbox`（既定: `Rails.env`） |
 | `APNS_POOL_SIZE` | | コネクションプールのサイズ（既定: 5） |
