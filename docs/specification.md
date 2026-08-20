@@ -317,7 +317,33 @@ APNS.push(device_token,
 | シンプル | 参加 / 辞退の結果通知 | `content-available: 1`, `badge`, `sound`（category なし） |
 
 - どの通知にも一意な `notification_id`（UUID）を custom フィールドとして付与する。
-- インタラクティブ通知のカテゴリ `HIMASOKU_INVITE` はクライアント側で「参加する」(`JOIN_ACTION`) / 「辞退する」(`DECLINE_ACTION`) の 2 ボタンに対応（詳細は `docs/interactive_notifications.md`）。
+- インタラクティブ通知のカテゴリ `HIMASOKU_INVITE` はクライアント側で「わかる😮」(`JOIN_ACTION`) / 「今は暇じゃない😢」(`DECLINE_ACTION`) の 2 ボタンに対応（詳細は `docs/interactive_notifications.md`）。
+
+### カスタムペイロードのキー契約（重要）
+
+通知の custom フィールド（`aps` の外側）のキーは iOS クライアント（`AppDelegate`）が
+参照するため、**キー名・型を変更すると通知処理が静かに壊れる**。以下は固定契約。
+
+**暇共有（招待）通知** — `POST /notifications/group/:group_id` 由来:
+
+| キー | 型 | 用途（クライアント） |
+|------|----|----------------------|
+| `notification_id` | String | 未応答検知の待機タスク ID |
+| `sender_firebase_uid` | String | 応答 API の送信先 |
+| `sender_name` | String | 表示・応答 API |
+| `group_id` | String | 応答 API |
+| `durationTime` | String | 応答 API（**String 必須**。数値だとクライアントの `as? String` が nil になり待機処理が中断する） |
+
+**アクション結果通知** — `POST /notifications/response` の後に共有元へ送る:
+
+| キー | 型 | 用途（クライアント） |
+|------|----|----------------------|
+| `action` | String | `"JOIN"` / `"DECLINE"`（フォアグラウンド即時処理の分岐） |
+| `user_name` | String | 「共感した人」名の保存 |
+| `user_id` | String | 参考情報 |
+
+> クライアントは招待通知で上記 5 キーが揃わないと待機処理を中断する（通知表示自体は行う）。
+> バックエンドは常にこれらを含めること。
 
 ---
 
