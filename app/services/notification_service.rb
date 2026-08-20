@@ -65,8 +65,9 @@ class NotificationService
       { token: token, status: 'error', error: e.message }
     end
 
+    # users（AR リレーション）に紐づく全デバイストークンを 1 クエリで取得する（N+1 回避）
     def device_tokens_for(users)
-      users.flat_map { |user| user.user_devices.pluck(:device_id) }
+      UserDevice.where(firebase_uid: users.select(:firebase_uid)).pluck(:device_id)
     end
 
     # ---- 通知テンプレート ---------------------------------------------------
