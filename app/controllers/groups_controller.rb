@@ -1,29 +1,18 @@
 class GroupsController < ApplicationController
   def index
-    @groups = Group.all
-    render json: {
-      groups: @groups.map { |group| {
-        id: group.group_id,
-        name: group.name
-      } }
-    }
+    render json: { groups: Group.all.map(&:summary) }
   end
 
-  def show 
+  def show
     @group = Group.find(params[:id])
-    Rails.logger.info("Group: #{@group.inspect}")
-  
-    render json: {
-        id: @group.group_id,
-        name: @group.name
-    }
+    render json: @group.summary
   end
 
   def create
     @group = Group.find_or_create_by(group_id: params[:group_id]) do |group|
       group.name = params[:name]
     end
-    
+
     if @group.persisted?
       render json: @group, status: :created
     else
