@@ -345,6 +345,27 @@ APNS.push(device_token,
 > クライアントは招待通知で上記 5 キーが揃わないと待機処理を中断する（通知表示自体は行う）。
 > バックエンドは常にこれらを含めること。
 
+### 暇共有のエンドツーエンドフロー
+
+```
+[共有者アプリ] --(POST /notifications/group/:group_id)--> [Backend]
+                                                             │ グループ全員(送信者除く)へ
+                                                             ▼ インタラクティブ通知(HIMASOKU_INVITE)
+[メンバー端末] 通知受信
+   ├─ 「わかる😮」タップ  --(POST /notifications/response, JOIN_ACTION)-->  [Backend]
+   ├─ 「今は暇じゃない😢」  --(POST /notifications/response, DECLINE_ACTION)--> [Backend]
+   └─ 無操作のまま 30 秒   --(iOS が自動で DECLINE_ACTION を送信)-->          [Backend]
+                                                             │ 共有者へ結果を
+                                                             ▼ シンプル通知で返す
+[共有者アプリ] 「◯◯が共感しています！」/「◯◯は今は忙しいみたいです😢」
+```
+
+- **30 秒自動辞退**: iOS 側（`AppDelegate`）は招待通知受信後 30 秒待ち、ユーザー操作が
+  なければ自動的に `DECLINE_ACTION` を送る（バックグラウンドタスク + `notification_id`
+  をキーにした操作済みフラグで重複を防ぐ）。この挙動はクライアント実装に依存する。
+- バックエンドの `notification_id` は、この「操作済み判定」のキーとして使われるため
+  **通知ごとに一意**である必要がある（`NotificationService` が UUID を毎回付与）。
+
 ---
 
 ## 6. 環境変数
