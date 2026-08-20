@@ -36,18 +36,14 @@ module FirebaseIdToken
       certs = get_certs_from_redis
 
       if certs.nil?
-        puts "No certificates found in Redis"
-        puts "Fetching certificates from Google"
+        Rails.logger.info "Firebase certs not cached; fetching from Google"
         certs = save_certs_to_redis
         return nil if certs.nil?
       end
       certs = JSON.parse(certs)
       header = JWT.decode(id_token, nil, false)[1]
-      # puts header
-      # puts certs
       kid = header["kid"]
       cert = certs[kid]
-      # puts cert
 
       if cert.nil?
         Rails.logger.error "No certificate found for kid: #{kid}"
@@ -55,7 +51,6 @@ module FirebaseIdToken
       end
 
       public_key = OpenSSL::X509::Certificate.new(cert).public_key
-      # puts public_key
       begin
         payload = JWT.decode(id_token, public_key, true, { algorithm: "RS256" })
         payload.first
