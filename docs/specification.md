@@ -296,10 +296,18 @@ User  *--*  Group   (through GroupUser)
 - P8 認証キーによるトークン（JWT）認証。`Apnotic::ConnectionPool` でコネクションを再利用する。
 - ゲートウェイは `APNS_ENVIRONMENT`（未設定時は `Rails.env`）が `production` なら本番、それ以外は Sandbox。
 
-### JWT（重要）
-- APNS のプロバイダトークンは **ES256** 署名で、JOSE 仕様（RFC 7518）により **生の `r‖s`（64 バイト）** が必要。
-- `apnotic` 1.7.2 は署名を ASN.1(DER) 形式で出力するバグがあり、そのままだと APNS に `InvalidProviderToken` で拒否される。
-- `config/initializers/apnotic_es256_patch.rb` で `Apnotic::ProviderToken#signature` を差し替え、DER → 生 `r‖s` に変換して修正している。
+### JWT（ES256 署名の補足）
+- APNS のプロバイダトークンは **ES256** 署名。JOSE 仕様（RFC 7518）では **生の `r‖s`（64 バイト）** が要求される。
+- `apnotic`（0.7.0〜最新 1.8.0 まで一貫して）は `dsa_sign_asn1` を用い、署名を **ASN.1(DER) 形式**で出力する。
+- **ただし APNS は DER 署名を受理する**（ASN.1 をデコードして検証しているとみられる）。実際 apnotic は
+  DER のまま長年本番運用されており、恒常的な `InvalidProviderToken` の報告は無い。したがって
+  **DER 署名は `InvalidProviderToken` の原因ではない**（当初の想定は誤り）。
+- `config/initializers/apnotic_es256_patch.rb` は署名を DER→生 `r‖s` に変換し、トークンを
+  **厳密に JWT 仕様準拠**にする。動作上は必須ではなく、将来 Apple が検証を厳格化した場合に備えた
+  防御的措置（defense-in-depth）。不要なら削除しても APNS は動作する。
+- `InvalidProviderToken` の実際の原因は通常、**認証情報の不一致**（Team ID / Key ID / トピック、
+  もしくは鍵の環境変数）や一時的な Apple 側事象。特に本セットアップでは env 名の不一致に注意
+  （[integrity-findings](integrity-findings.md#15-apns-の-env-名不一致本番影響--重要) 参照）。
 
 ### 送信 API（`APNS.push`）
 ```ruby
